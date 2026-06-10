@@ -1,5 +1,10 @@
 # CIFAR-Style Model Compression and Quantization Lab
 
+![Project overview](assets/readme_project_overview.png)
+
+Figure: model-compression workflow from training to int8 weight quantization.
+
+
 ## Motivation
 
 Edge AI often needs models that are small enough to run on limited hardware. Quantization is one common compression method: it stores model weights with fewer bits, usually with a small accuracy trade-off.
