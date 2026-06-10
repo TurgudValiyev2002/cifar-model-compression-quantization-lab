@@ -1,5 +1,9 @@
 # CIFAR-Style Model Compression and Quantization Lab
 
+![Quantization overview](assets/quantization_overview.png)
+
+Figure: quantization stores the same model weights with fewer bits, reducing memory while trying to keep the model useful.
+
 ![Project overview](assets/readme_project_overview.png)
 
 Figure: model-compression workflow from training to int8 weight quantization.
