@@ -2,7 +2,7 @@
 
 ## Motivation
 
-The previous synthetic quantization task gave perfect accuracy, so it did not show a real compression trade-off. We replaced it with real CIFAR-10 to make the result more credible.
+We use real CIFAR-10 to measure a credible compression trade-off between model size and accuracy.
 
 ## Dataset
 

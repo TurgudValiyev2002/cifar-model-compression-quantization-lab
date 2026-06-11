@@ -6,7 +6,7 @@ Figure: train a linear classifier on real CIFAR-10 pixels, quantize the trained 
 
 ## Motivation
 
-Quantization is useful only if we measure both compression and accuracy. The earlier version used a controlled image dataset and gave perfect accuracy, which was not a useful research signal. This version uses real CIFAR-10 so the compression result is more honest.
+Quantization is useful only if we measure both compression and accuracy. This project uses real CIFAR-10 so the compression result is meaningful and not just a toy demonstration.
 
 ## Project Goal
 
@@ -68,13 +68,13 @@ Result files:
 
 ## Interpretation
 
-The real-data result is much better than the old perfect synthetic result. The model is weak because it is only a linear classifier on raw CIFAR-10 pixels, but the quantization behavior is meaningful.
+The model is weak because it is only a linear classifier on raw CIFAR-10 pixels, but the quantization behavior is meaningful.
 
 Accuracy stayed stable from 64-bit down to 8-bit. At 4-bit, accuracy dropped slightly. At 2-bit, performance collapsed close to the dummy-baseline range. This shows that moderate quantization can preserve a simple model, but very aggressive quantization destroys useful weight information.
 
 ## Conclusion
 
-This project now demonstrates quantization on a real image dataset. The next step should train a small CNN and compare post-training quantization on convolutional weights, because CNNs are much more appropriate for CIFAR-10 than a linear pixel classifier.
+This project demonstrates quantization on a real image dataset. The next step should train a small CNN and compare post-training quantization on convolutional weights, because CNNs are much more appropriate for CIFAR-10 than a linear pixel classifier.
 
 ## How To Run
 
