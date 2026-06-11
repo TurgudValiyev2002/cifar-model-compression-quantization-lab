@@ -61,7 +61,7 @@ Int8 quantization is almost safe here: accuracy changes from 0.4780 to 0.4747. F
 
 ## Conclusion
 
-This project now evaluates quantization on a real CNN. The practical conclusion is clear: 8-bit post-training quantization is strong for this model, while 2-bit quantization is too aggressive.
+This project evaluates quantization on a real CNN. The practical conclusion is clear: 8-bit post-training quantization is strong for this model, while 2-bit quantization is too aggressive.
 
 ## How To Run
 
