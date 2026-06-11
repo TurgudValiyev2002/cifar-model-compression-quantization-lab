@@ -1,29 +1,25 @@
-# One-Page Report: CIFAR-10 Linear Model Quantization
+# One-Page Report: CIFAR-10 CNN Quantization
 
 ## Motivation
 
-We use real CIFAR-10 to measure a credible compression trade-off between model size and accuracy.
+We used a CNN because CIFAR-10 is an image dataset and convolution is a better model family than a linear pixel classifier.
 
 ## Dataset
 
-We used the official CIFAR-10 Python archive. The experiment used 10,000 balanced training images and 2,000 balanced test images from the 10 CIFAR-10 classes.
+The experiment used 6,000 CIFAR-10 training images and 1,500 test images from the official Python archive.
 
 ## Method
 
-We trained an SGD linear classifier on standardized flattened pixels. Then we quantized the learned weights and intercepts to 32, 16, 8, 4, and 2 bits and evaluated each version on the same held-out test set.
-
-## Hyperparameters
-
-The classifier used logistic loss, `alpha=0.0001`, `max_iter=100`, and random seed 42. The input features were 32x32x3 flattened pixel values.
+We trained a small PyTorch CNN for 6 epochs and then quantized the trained weights to 32, 16, 8, 4, and 2 bits. We evaluated each version on the same test set.
 
 ## Results
 
-The float64 model reached 0.3630 accuracy and 0.3667 macro F1. Accuracy stayed at 0.3630 for 32-bit, 16-bit, and 8-bit quantization. At 4-bit it dropped to 0.3475. At 2-bit it collapsed to 0.1080 accuracy.
+The float32 CNN achieved 0.4780 accuracy and 0.4539 macro F1. Int8 quantization achieved 0.4747 accuracy. Four-bit quantization dropped to 0.4407, and two-bit quantization collapsed to 0.1793.
 
 ## Interpretation
 
-The result shows that 8-bit quantization preserved this model, while 2-bit quantization destroyed it. This is a realistic pattern: moderate quantization can work, but aggressive quantization can remove too much weight information.
+The CNN tolerates moderate quantization. Int8 keeps almost all accuracy, but 2-bit quantization removes too much information.
 
 ## Conclusion
 
-The project now reports an honest real-data compression experiment. A stronger follow-up should use a CNN, because linear pixels are not a strong CIFAR-10 model.
+CNN quantization gives a realistic compression result: int8 is useful, 4-bit is risky but possible, and 2-bit is too aggressive for this trained model.

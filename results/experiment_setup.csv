@@ -1,6 +1,8 @@
 setting,value
 dataset,CIFAR-10 official Python archive
-train_images,10000
-test_images,2000
-classes,10
-model,SGD linear classifier on standardized pixels
+model,small CNN with three convolution blocks
+train_images,6000
+test_images,1500
+parameters,94986
+epochs,6
+best_epoch,5

@@ -1,84 +1,71 @@
-# CIFAR-10 Linear Model Quantization Lab
+# CIFAR-10 CNN Quantization Lab
 
 ![Project overview](assets/readme_project_overview.png)
 
-Figure: train a linear classifier on real CIFAR-10 pixels, quantize the trained weights, and measure the accuracy-size trade-off.
+Figure: a small CNN is trained on real CIFAR-10, then post-training weight quantization is evaluated.
 
 ## Motivation
 
-Quantization is useful only if we measure both compression and accuracy. This project uses real CIFAR-10 so the compression result is meaningful and not just a toy demonstration.
+Quantization should be tested on a model that actually uses image structure. A CNN is more appropriate for CIFAR-10 than a linear pixel classifier, so this project measures compression on convolutional weights.
 
 ## Project Goal
 
-We trained a simple linear classifier on real CIFAR-10 and quantized its weights from float64 storage down to lower precision. The goal was to see when quantization keeps accuracy stable and when it breaks the model.
+We trained a small CNN on real CIFAR-10 and quantized the trained weights to lower precision. The goal was to see how far precision can be reduced before accuracy breaks.
 
 ## Dataset
 
-We used the official CIFAR-10 Python archive. The script downloads the dataset into the ignored `data/` folder.
+We used the official CIFAR-10 Python archive.
 
-Experiment subset:
-
-- Training images: 10,000
-- Test images: 2,000
+- Training images: 6,000
+- Test images: 1,500
 - Classes: 10
 - Image size: 32x32 RGB
-- Features: flattened standardized pixels
 
 ## Tools
 
-Python, NumPy, pandas, scikit-learn, and matplotlib.
+Python, NumPy, pandas, PyTorch, scikit-learn metrics, and matplotlib.
 
 ## Method
 
-We trained an SGD linear classifier with logistic loss. After training, we quantized only the learned weights and intercepts using symmetric uniform quantization. We then reused the same test set to compare accuracy, macro F1, approximate model size, and compression ratio.
+The CNN has three convolution blocks with batch normalization, ReLU, pooling, and a final linear classifier. After training, we applied symmetric post-training quantization to model parameters.
 
-## Hyperparameters
+Hyperparameters:
 
 | Setting | Value |
 |---|---:|
-| Model | SGD linear classifier |
-| Loss | Logistic loss |
-| Max iterations | 100 |
-| Alpha | 0.0001 |
-| Train images | 10,000 |
-| Test images | 2,000 |
-| Random seed | 42 |
+| Epochs | 6 |
+| Optimizer | Adam |
+| Learning rate | 0.001 |
+| Weight decay | 0.0001 |
+| Parameters | 94,986 |
 
 ## Results
 
-| Weight Precision | Accuracy | Macro F1 | Compression Ratio |
+| Weight Precision | Accuracy | Macro F1 | Compression vs FP32 |
 |---:|---:|---:|---:|
-| 64-bit | 0.3630 | 0.3667 | 1.00 |
-| 32-bit | 0.3630 | 0.3667 | 2.00 |
-| 16-bit | 0.3630 | 0.3667 | 4.00 |
-| 8-bit | 0.3630 | 0.3666 | 8.00 |
-| 4-bit | 0.3475 | 0.3524 | 16.00 |
-| 2-bit | 0.1080 | 0.0369 | 32.00 |
+| 32-bit | 0.4780 | 0.4539 | 1.00 |
+| 16-bit | 0.4780 | 0.4539 | 2.00 |
+| 8-bit | 0.4747 | 0.4519 | 4.00 |
+| 4-bit | 0.4407 | 0.4067 | 8.00 |
+| 2-bit | 0.1793 | 0.1246 | 16.00 |
 
 ![Accuracy vs precision](results/accuracy_vs_precision.png)
 
 ![Compression accuracy trade-off](results/compression_accuracy_tradeoff.png)
 
-Result files:
-
-- `results/quantization_metrics.csv`
-- `results/experiment_setup.csv`
-- `results/accuracy_vs_precision.png`
-- `results/compression_accuracy_tradeoff.png`
+![CNN training curves](results/cnn_training_curves.png)
 
 ## Interpretation
 
-The model is weak because it is only a linear classifier on raw CIFAR-10 pixels, but the quantization behavior is meaningful.
-
-Accuracy stayed stable from 64-bit down to 8-bit. At 4-bit, accuracy dropped slightly. At 2-bit, performance collapsed close to the dummy-baseline range. This shows that moderate quantization can preserve a simple model, but very aggressive quantization destroys useful weight information.
+Int8 quantization is almost safe here: accuracy changes from 0.4780 to 0.4747. Four-bit quantization still works but loses more accuracy. Two-bit quantization collapses the CNN because too much weight information is removed.
 
 ## Conclusion
 
-This project demonstrates quantization on a real image dataset. The next step should train a small CNN and compare post-training quantization on convolutional weights, because CNNs are much more appropriate for CIFAR-10 than a linear pixel classifier.
+This project now evaluates quantization on a real CNN. The practical conclusion is clear: 8-bit post-training quantization is strong for this model, while 2-bit quantization is too aggressive.
 
 ## How To Run
 
 ```bash
 pip install -r requirements.txt
-python 1_real_cifar_linear_quantization.py
+python 1_cifar10_cnn_quantization.py
 ```
