@@ -1,25 +1,28 @@
-# CIFAR-Style Model Compression and Quantization Lab
-
-![Quantization overview](assets/quantization_overview.png)
-
-Figure: quantization stores the same model weights with fewer bits, reducing memory while trying to keep the model useful.
+# CIFAR-10 Linear Model Quantization Lab
 
 ![Project overview](assets/readme_project_overview.png)
 
-Figure: model-compression workflow from training to int8 weight quantization.
-
+Figure: train a linear classifier on real CIFAR-10 pixels, quantize the trained weights, and measure the accuracy-size trade-off.
 
 ## Motivation
 
-Edge AI often needs models that are small enough to run on limited hardware. Quantization is one common compression method: it stores model weights with fewer bits, usually with a small accuracy trade-off.
+Quantization is useful only if we measure both compression and accuracy. The earlier version used a controlled image dataset and gave perfect accuracy, which was not a useful research signal. This version uses real CIFAR-10 so the compression result is more honest.
 
 ## Project Goal
 
-We tested whether an image classifier can keep its accuracy after converting its learned weights from floating point values to int8 values.
+We trained a simple linear classifier on real CIFAR-10 and quantized its weights from float64 storage down to lower precision. The goal was to see when quantization keeps accuracy stable and when it breaks the model.
 
 ## Dataset
 
-The experiment uses a controlled CIFAR-style image dataset with 16x16 RGB images and three visual classes. The images are not the real CIFAR dataset. They are local image-like examples with simple color and shape patterns, used so the compression experiment runs without downloading external data.
+We used the official CIFAR-10 Python archive. The script downloads the dataset into the ignored `data/` folder.
+
+Experiment subset:
+
+- Training images: 10,000
+- Test images: 2,000
+- Classes: 10
+- Image size: 32x32 RGB
+- Features: flattened standardized pixels
 
 ## Tools
 
@@ -27,37 +30,55 @@ Python, NumPy, pandas, scikit-learn, and matplotlib.
 
 ## Method
 
-We trained multinomial logistic regression on flattened RGB image pixels. After training, we quantized the learned weights to int8 and evaluated the quantized model using the same test set.
+We trained an SGD linear classifier with logistic loss. After training, we quantized only the learned weights and intercepts using symmetric uniform quantization. We then reused the same test set to compare accuracy, macro F1, approximate model size, and compression ratio.
 
 ## Hyperparameters
 
-- Samples: 1200
-- Image size: 16x16x3
-- Classes: 3
-- Test split: 25 percent
-- Model: `LogisticRegression(max_iter=1000, random_state=42)`
-- Quantization: symmetric int8 weight quantization
+| Setting | Value |
+|---|---:|
+| Model | SGD linear classifier |
+| Loss | Logistic loss |
+| Max iterations | 100 |
+| Alpha | 0.0001 |
+| Train images | 10,000 |
+| Test images | 2,000 |
+| Random seed | 42 |
 
 ## Results
 
-| Model | Accuracy | Macro F1 | Weight Bytes | Compression Ratio |
-|---|---:|---:|---:|---:|
-| Float64 logistic regression | 1.0000 | 1.0000 | 18432 | 1.00 |
-| Int8 weight quantized | 1.0000 | 1.0000 | 2304 | 8.00 |
+| Weight Precision | Accuracy | Macro F1 | Compression Ratio |
+|---:|---:|---:|---:|
+| 64-bit | 0.3630 | 0.3667 | 1.00 |
+| 32-bit | 0.3630 | 0.3667 | 2.00 |
+| 16-bit | 0.3630 | 0.3667 | 4.00 |
+| 8-bit | 0.3630 | 0.3666 | 8.00 |
+| 4-bit | 0.3475 | 0.3524 | 16.00 |
+| 2-bit | 0.1080 | 0.0369 | 32.00 |
 
-The result files include `compression_metrics.csv`, `experiment_setup.csv`, `accuracy_comparison.png`, and `model_size_comparison.png`.
+![Accuracy vs precision](results/accuracy_vs_precision.png)
+
+![Compression accuracy trade-off](results/compression_accuracy_tradeoff.png)
+
+Result files:
+
+- `results/quantization_metrics.csv`
+- `results/experiment_setup.csv`
+- `results/accuracy_vs_precision.png`
+- `results/compression_accuracy_tradeoff.png`
 
 ## Interpretation
 
-The quantized model kept the same test accuracy while reducing weight storage by 8 times. This happened because the classification task is simple and the learned decision boundary is robust. On a real CIFAR model, the trade-off may be larger.
+The real-data result is much better than the old perfect synthetic result. The model is weak because it is only a linear classifier on raw CIFAR-10 pixels, but the quantization behavior is meaningful.
+
+Accuracy stayed stable from 64-bit down to 8-bit. At 4-bit, accuracy dropped slightly. At 2-bit, performance collapsed close to the dummy-baseline range. This shows that moderate quantization can preserve a simple model, but very aggressive quantization destroys useful weight information.
 
 ## Conclusion
 
-Quantization can reduce model size with little or no accuracy loss when the task and model are stable. The next step should be testing a real CNN on real CIFAR-10 when PyTorch or TensorFlow and the dataset are available.
+This project now demonstrates quantization on a real image dataset. The next step should train a small CNN and compare post-training quantization on convolutional weights, because CNNs are much more appropriate for CIFAR-10 than a linear pixel classifier.
 
 ## How To Run
 
 ```bash
 pip install -r requirements.txt
-python 1_compression_quantization.py
+python 1_real_cifar_linear_quantization.py
 ```

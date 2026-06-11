@@ -1,3 +1,0 @@
-model,accuracy,macro_f1,weight_bytes,compression_ratio
-float64_logistic_regression,1.0,1.0,18432,1.0
-int8_weight_quantized,1.0,1.0,2304,8.0

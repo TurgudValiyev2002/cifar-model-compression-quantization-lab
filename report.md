@@ -1,29 +1,29 @@
-# Report: CIFAR-Style Model Compression and Quantization
+# One-Page Report: CIFAR-10 Linear Model Quantization
 
 ## Motivation
 
-We studied quantization because compressed models are important for edge AI and embedded AI.
+The previous synthetic quantization task gave perfect accuracy, so it did not show a real compression trade-off. We replaced it with real CIFAR-10 to make the result more credible.
 
 ## Dataset
 
-The experiment used a controlled CIFAR-style RGB image dataset with 1200 samples, 16x16x3 pixels, and 3 classes. It is not the real CIFAR dataset.
+We used the official CIFAR-10 Python archive. The experiment used 10,000 balanced training images and 2,000 balanced test images from the 10 CIFAR-10 classes.
 
 ## Method
 
-We trained logistic regression on flattened image pixels, then quantized the learned weights to int8 and compared the original and quantized models.
+We trained an SGD linear classifier on standardized flattened pixels. Then we quantized the learned weights and intercepts to 32, 16, 8, 4, and 2 bits and evaluated each version on the same held-out test set.
 
 ## Hyperparameters
 
-The test split was 25 percent. Logistic regression used `max_iter=1000` and `random_state=42`. Quantization used symmetric int8 scaling.
+The classifier used logistic loss, `alpha=0.0001`, `max_iter=100`, and random seed 42. The input features were 32x32x3 flattened pixel values.
 
 ## Results
 
-Both the original and quantized models achieved 1.0000 accuracy and 1.0000 macro F1. Weight storage decreased from 18432 bytes to 2304 bytes, an 8x reduction.
+The float64 model reached 0.3630 accuracy and 0.3667 macro F1. Accuracy stayed at 0.3630 for 32-bit, 16-bit, and 8-bit quantization. At 4-bit it dropped to 0.3475. At 2-bit it collapsed to 0.1080 accuracy.
 
 ## Interpretation
 
-Quantization did not hurt accuracy because this controlled image task has very clear class patterns. The result shows the mechanism of compression, not a claim about real CIFAR performance.
+The result shows that 8-bit quantization preserved this model, while 2-bit quantization destroyed it. This is a realistic pattern: moderate quantization can work, but aggressive quantization can remove too much weight information.
 
 ## Conclusion
 
-Int8 quantization can strongly reduce storage. A stronger future version should evaluate a real CNN on real CIFAR-10.
+The project now reports an honest real-data compression experiment. A stronger follow-up should use a CNN, because linear pixels are not a strong CIFAR-10 model.

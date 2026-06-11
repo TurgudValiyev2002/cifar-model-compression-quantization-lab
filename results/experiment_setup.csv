@@ -1,6 +1,6 @@
-parameter,value
-classes,3
-image_size,16x16x3
-train_samples,900
-test_samples,300
-int8_scale,0.0003759769016301814
+setting,value
+dataset,CIFAR-10 official Python archive
+train_images,10000
+test_images,2000
+classes,10
+model,SGD linear classifier on standardized pixels
